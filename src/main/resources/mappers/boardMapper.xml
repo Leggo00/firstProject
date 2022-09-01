@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.dong.boardMapper">
+	<!--글 전체 목록 보기-->
+	<select id="list" resultType="BoardDTO">
+		select * 
+		from board 
+		where del = 0
+		order by bno desc
+	</select>
+
+	<!--글 읽기-->
+	<select id="detail" parameterType="java.lang.Integer" resultType="BoardDTO">
+		select * 
+		from board 
+		where bno =#{bno}
+	</select>
+
+	<!--글 조회수 증가-->
+	<update id="upadateReadCnt" parameterType="java.lang.Integer" >
+		update 
+		board
+		set
+		readcnt= readcnt+1
+		where bno= #{bno}		
+	</update>
+	
+	<!--글 쓰기-->
+	<insert id="register" parameterType="BoardDTO">
+		insert into board(bno, title, content, id, regdate, readcnt, etc, del)
+		values (#{bno}, #{title}, #{content}, #{id}, curdate(), 0 , #{etc}, 0)
+	</insert>
+
+	
+	<!--글 수정-->
+	<update id="update" parameterType="BoardDTO">
+        UPDATE board SET 
+        title = #{title}, 
+        content = #{content},
+        regdate = curdate(),
+        etc = #{etc}
+        WHERE (bno = #{bno})
+	</update>
+	
+	<!--글 삭제-->
+	<update id="delete"  parameterType="java.lang.Integer">
+		update 
+		board
+		set
+		del= 1
+		where bno= #{bno}		
+	</update>
+		
+	<!-- 로그인처리를 위한 SQL -->
+	<select id="login" parameterType="java.util.Map" resultType="java.util.Map">
+		select id,name
+		from springuser
+		where id= #{id} 
+		and   password=#{password}
+	</select>	
+	
+	<!-- 댓글목록조회 -->
+	<select id="detail1" parameterType="java.lang.Integer" resultType="BoardReply">
+		select * from board_reply
+		where bno = #{bno}
+		order by reno desc
+	</select>
+	
+	<!-- 댓글쓰기 -->
+	<insert id="reply" parameterType="BoardReply">
+		INSERT INTO board_reply 
+		(rewriter, rememo, redate, bno) 
+		VALUES (#{rewriter},#{rememo},curdate(),#{bno})
+	</insert>
+
+	<!-- 해당 댓글 읽기 -->
+	<select id="detailReply"  parameterType="BoardReply" resultType="BoardReply">
+		SELECT * 
+		FROM 
+		board_reply
+		where reno =#{reno}	
+	</select>
+
+	<!-- 댓글수정 -->
+	<update id="replyupdate" parameterType="BoardReply">
+		UPDATE board_reply
+		SET 
+		rememo = #{rememo}, 
+		redate = curdate()
+		WHERE (reno = #{reno})	
+	</update>
+
+	<!-- 댓글삭제 -->
+	<delete id="replyDelete" parameterType="java.lang.Integer">
+		DELETE FROM board_reply 
+		WHERE (reno = #{reno})
+	</delete>
+
+</mapper>
